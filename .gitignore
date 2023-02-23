@@ -1,0 +1,5 @@
+# Adding files to ignore
+
+*.pcd
+*.png
+*.bin
