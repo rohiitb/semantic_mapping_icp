@@ -3,6 +3,7 @@ import open3d as o3d
 import os
 import matplotlib.pyplot as plt
 import cv2
+from utils import *
 from calib import Calibration
 
 class Projection():
@@ -25,18 +26,32 @@ class Projection():
         img = cv2.imread(f"{self.img_dataset_path}/{img_data[idx]}")
 
         points = np.asarray(pcd_load.points)
-        points = np.hstack((points, np.ones(len(points)).reshape(-1,1)))
-        
-        points_transformed = (np.linalg.inv(self.calib.T_cam_2_lidar) @ points.T).T
-        
-        points_transformed = points_transformed[points_transformed[:,2]>0]
-        
-        pts_cam_frame = self.calib.P_rect_camera_0 @ self.calib.R_rect_camera_0 @ points_transformed.T
-        pts_cam_frame = pts_cam_frame[:3] / pts_cam_frame[2]
 
-        plt.scatter(pts_cam_frame[0], pts_cam_frame[1],s=1,marker='o')
-        plt.imshow(img)
-        plt.show()
+        points = make_pts_homogenous(points)
+        
+        points_transformed, front_idx = lidar_2_cam(points, self.calib.T_cam_2_lidar)
+
+        pts_cam_frame, outside_idx = proj_lidar_2_img(points_transformed, self.calib.P_rect_camera_0, self.calib.R_rect_camera_0, self.calib.image_size)
+
+        rgb = get_rgb(pts_cam_frame, img)
+
+        fin_points = points[front_idx][outside_idx]
+        # print("Final : ", fin_points)
+        # raise
+
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(points[front_idx][outside_idx][:,:3])
+        pcd.colors = o3d.utility.Vector3dVector(rgb/255.)
+
+        o3d.visualization.draw_geometries([pcd])
+
+
+
+        # print("Here : ", pts_cam_frame)
+
+        # plt.scatter(pts_cam_frame[:,0], pts_cam_frame[:,1],s=1,marker='o')
+        # plt.imshow(img)
+        # plt.show()
         # print("Here done: ", pts_cam_frame)
 
         
@@ -51,4 +66,4 @@ class Projection():
 
 if __name__ == "__main__":
     proj = Projection()
-    proj.get_single_data(100)
+    proj.get_single_data(2500)

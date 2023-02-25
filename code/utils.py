@@ -19,7 +19,46 @@ def conv_bin_to_pcd(ip_path, op_path):
         # Save to whatever format you like
         o3d.io.write_point_cloud(f"{op_path}/{pcd_data[i].split('.')[0]}.pcd", o3d_pcd)  
 
-  
+def lidar_2_cam(points, T_cam_2_lidar):
+    '''
+    INPUT : pointcloud points Shape(n,4), T_cam_2_lidar Shape(4,4)
+    OUTPUT : pointcloud points Shape(n,4)
+    '''
+    points_transformed = (np.linalg.inv(T_cam_2_lidar) @ points.T).T   
+    forward_pts_idx = points_transformed[:,2]>0
+    points_transformed = points_transformed[forward_pts_idx]
+    return points_transformed, forward_pts_idx
+
+def proj_lidar_2_img(points, P_rect_cam, R_rect_cam, img_size):
+    '''
+    INPUT : pointcloud points Shape(n,4), P, R Shape(4,4), img_size tuple(1,2)
+    OUTPUT : pointcloud pixels Shape(n,2)
+    '''
+    pts_cam_frame = P_rect_cam @ R_rect_cam @ points.T
+    pts_cam_frame = pts_cam_frame[:3] / pts_cam_frame[2]
+    pts_cam_frame = pts_cam_frame[:2].T
+    pts_cam_frame_idx = np.logical_and(pts_cam_frame[:,0] >= 0, np.logical_and(pts_cam_frame[:,1] >= 0, np.logical_and(pts_cam_frame[:,0] < img_size[0], pts_cam_frame[:,1] < img_size[1])))
+    pts_cam_frame = pts_cam_frame[pts_cam_frame_idx]
+    return pts_cam_frame, pts_cam_frame_idx
+
+def make_pts_homogenous(points):
+    points = np.hstack((points, np.ones(len(points)).reshape(-1,1)))
+    return points
+
+def get_rgb(uv, img):
+    pixels = np.int32(uv).T
+    # print(img.shape)
+    # print(pixels)
+    rgb = img[pixels[1],pixels[0]]
+    # print(rgb)
+    # print(pixels)
+    return rgb
+
+
+
+
+
+
     
 if __name__ == "__main__":
     pass
