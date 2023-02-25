@@ -11,13 +11,13 @@ class Calibration():
         self.K_00 = K_00
 
         P_rect_camera_0 = self.get_P_rect_camera_0()
-        self.P_rect_camera_0 = P_rect_camera_0
+        self.P_rect_camera_0 = P_rect_camera_0     # Shape (4,4)
 
         R_rect_camera_0 = self.get_R_rect_camera_0()
-        self.R_rect_camera_0 = R_rect_camera_0
+        self.R_rect_camera_0 = R_rect_camera_0    # Shape (4,4)
 
         T_cam_2_lidar = self.get_T_cam_2_lidar()
-        self.T_cam_2_lidar = T_cam_2_lidar
+        self.T_cam_2_lidar = T_cam_2_lidar       # Shape (4,4)
 
         self.image_size = (1408, 376)
 
@@ -26,6 +26,7 @@ class Calibration():
             content = f.read().splitlines()[0]
             content = content.split(' ')
         vals = np.array([float(val) for val in content]).reshape(3,4)
+        vals = np.vstack((vals, np.array([0,0,0,1])))
         return vals
         
     def extract_calib(self):
@@ -45,10 +46,13 @@ class Calibration():
         
     def get_P_rect_camera_0(self):
         P = np.array(self.data_dict['P_rect_00']).reshape(3,4)
+        P = np.vstack((P, np.array([0,0,0,1])))
         return P
 
     def get_R_rect_camera_0(self):
         R = np.array(self.data_dict['R_rect_00']).reshape(3,3)
+        R = np.hstack((R, np.zeros(3).reshape(-1,1)))
+        R = np.vstack((R, np.array([0,0,0,1])))
         return R
 
 
