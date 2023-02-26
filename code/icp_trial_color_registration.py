@@ -15,11 +15,11 @@ class Projection():
         self.pcd_dataset_path = f"{self.dir_path}/dataset/lidar/pcd_points"
         self.painted_pcd_rgb = f"{self.dir_path}/dataset/painted_points_rgb"
         self.calib = Calibration(self.calib_path)
+        
         self.voxel_size = 0.05
-        self.max_correspondence_distance_coarse = self.voxel_size * 15
-        self.max_correspondence_distance_fine = self.voxel_size * 1.5
-        self.pcds_down = self.load_pcds()
-        self.pose_graph = self.run_full_registration()
+        
+        all_pcds = self.load_pcds()
+        self.pcds_down = all_pcds
 
     def get_single_data(self, idx):
         pcd_data = os.listdir(self.pcd_dataset_path)
@@ -65,6 +65,25 @@ class Projection():
             pcds.append(pcd_down)
         return pcds
     
+    def draw_registration_result(self, source, target, transformation):
+        source_temp = copy.deepcopy(source)
+        target_temp = copy.deepcopy(target)
+        source_temp.paint_uniform_color([1, 0.706, 0])
+        target_temp.paint_uniform_color([0, 0.651, 0.929])
+        source_temp.transform(transformation)
+        o3d.visualization.draw_geometries([source_temp, target_temp])
+
+
+
+
+
+    def merge_pointcloud(self):
+        source = self.pcds_down[0]
+
+        target = self.pcds_down[1]
+
+
+        
     
 
 
@@ -75,6 +94,4 @@ class Projection():
 
 if __name__ == "__main__":
     proj = Projection()
-    proj.icp_combined()
-    # proj.visualize_painted_rgb_pcd(40)
-    # proj.paint_pointcloud(2500, visualize=True)
+    proj.merge_pointcloud()
