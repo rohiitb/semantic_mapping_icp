@@ -131,7 +131,6 @@ class Projection():
 
     def merge_pointcloud(self):
         source = self.pcds_down[0]
-
         target = self.pcds_down[1]
 
         source, target, source_down, target_down, source_fpfh, target_fpfh = self.prepare_dataset(source, target, self.voxel_size,)
@@ -139,22 +138,12 @@ class Projection():
                                             source_fpfh, target_fpfh,
                                             self.voxel_size)
         print(result_ransac)
-
         self.draw_registration_result(source_down, target_down, result_ransac.transformation)
-
         result_icp = self.refine_registration(source, target, source_fpfh, target_fpfh,
                                  self.voxel_size, result_ransac)
         print(result_icp)
         self.draw_registration_result(source, target, result_icp.transformation)
         
-    
-
-
-
-
-
-
-
 if __name__ == "__main__":
     proj = Projection()
     proj.merge_pointcloud()

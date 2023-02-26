@@ -61,7 +61,6 @@ class Projection():
         pcd_data.sort()
         for idx in range(len(pcd_data)):
             pcd = o3d.io.read_point_cloud(f"{self.painted_pcd_rgb}/{pcd_data[idx]}")
-            # pcd_down = pcd.voxel_down_sample(voxel_size=self.voxel_size)
             pcds.append(pcd)
         return pcds
     
@@ -70,13 +69,11 @@ class Projection():
         target.estimate_normals()
         icp_coarse = o3d.pipelines.registration.registration_icp(source, target, max_correspondence_distance_coarse, np.identity(4),
                                                                     o3d.pipelines.registration.TransformationEstimationPointToPoint())
-        
         icp_fine = o3d.pipelines.registration.registration_icp(source, target, max_correspondence_distance_fine,
                                                                 icp_coarse.transformation,
                                                                 o3d.pipelines.registration.TransformationEstimationPointToPoint(),o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=1000))
         
         transformation_icp = icp_fine.transformation
-        
         information_icp = o3d.pipelines.registration.get_information_matrix_from_point_clouds(source, target, max_correspondence_distance_fine,
                                                                                                 icp_fine.transformation)
         
@@ -84,11 +81,8 @@ class Projection():
     
     def full_registration(self, pcds):
         pose_graph = o3d.pipelines.registration.PoseGraph()
-        
         odometry = np.identity(4)
-        
         pose_graph.nodes.append(o3d.pipelines.registration.PoseGraphNode(odometry))
-        
         n_pcds = len(pcds)
 
         for source_id in range(n_pcds):
@@ -148,7 +142,6 @@ class Projection():
                 option)
 
     def icp_combined(self):
-        
         pcds = self.pcds_down
         pcd_combined = o3d.geometry.PointCloud()
         for point_id in range(len(pcds)):
@@ -158,15 +151,6 @@ class Projection():
         o3d.io.write_point_cloud("multiway_registration.pcd", pcd_combined_down)
         o3d.visualization.draw_geometries([pcd_combined_down])
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
     proj = Projection()
     proj.icp_combined()
-    # proj.visualize_painted_rgb_pcd(40)
-    # proj.paint_pointcloud(2500, visualize=True)
