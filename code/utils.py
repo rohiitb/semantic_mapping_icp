@@ -1,6 +1,7 @@
 import numpy as np
 import open3d as o3d
 import os
+import copy
 
 def conv_bin_to_pcd(ip_path, op_path):
     '''
@@ -22,7 +23,8 @@ def conv_bin_to_pcd(ip_path, op_path):
 def lidar_2_cam(points, T_cam_2_lidar):
     '''
     INPUT : pointcloud points Shape(n,4), T_cam_2_lidar Shape(4,4)
-    OUTPUT : pointcloud points Shape(n,4)
+    OUTPUT : pointcloud points Shape(n,4), 
+             (bool) forward_pts_idx ....Points in front of camera
     '''
     points_transformed = (np.linalg.inv(T_cam_2_lidar) @ points.T).T   
     forward_pts_idx = points_transformed[:,2]>0
@@ -33,6 +35,7 @@ def proj_lidar_2_img(points, P_rect_cam, R_rect_cam, img_size):
     '''
     INPUT : pointcloud points Shape(n,4), P, R Shape(4,4), img_size tuple(1,2)
     OUTPUT : pointcloud pixels Shape(n,2)
+             (bool) pts_cam_frame_idx ....Points inside the image
     '''
     pts_cam_frame = P_rect_cam @ R_rect_cam @ points.T
     pts_cam_frame = pts_cam_frame[:3] / pts_cam_frame[2]
@@ -42,21 +45,26 @@ def proj_lidar_2_img(points, P_rect_cam, R_rect_cam, img_size):
     return pts_cam_frame, pts_cam_frame_idx
 
 def make_pts_homogenous(points):
+    '''
+    Make points homogeneous Shape (n,4)
+    '''
     points = np.hstack((points, np.ones(len(points)).reshape(-1,1)))
     return points
 
 def get_rgb(uv, img):
+    '''
+    Get RGB values(normalized) to visualize
+    '''
     pixels = np.int32(uv).T
-    # print(img.shape)
-    # print(pixels)
     rgb = img[pixels[1],pixels[0]]
-    # print(rgb)
-    # print(pixels)
-    return rgb
+    return rgb/255.
 
-
-
-
+def get_pointcloud(points, rgb, visualize=False):
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(points)
+    pcd.colors = o3d.utility.Vector3dVector(rgb)
+    if visualize: o3d.visualization.draw_geometries([pcd])
+    return pcd
 
 
     
