@@ -92,14 +92,6 @@ python demo/image_demo.py demo/demo.png local_configs/segformer/B1/segformer.b1.
 ```
 
 
-
-
-
-## License
-Please check the LICENSE file. SegFormer may be used non-commercially, meaning for research or 
-evaluation purposes only. For business inquiries, please visit our website and submit the form: [NVIDIA Research Licensing](https://www.nvidia.com/en-us/research/inquiries/).
-
-
 ## Citation
 ```
 @inproceedings{xie2021segformer,
