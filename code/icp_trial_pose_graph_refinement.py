@@ -154,3 +154,4 @@ class Projection():
 if __name__ == "__main__":
     proj = Projection()
     proj.icp_combined()
+    # https://github.com/AmrElsersy/PointPainting
