@@ -66,6 +66,15 @@ def get_pointcloud(points, rgb, visualize=False):
     if visualize: o3d.visualization.draw_geometries([pcd])
     return pcd
 
+def cam_2_lidar(points, T_cam_2_lidar):
+    '''
+    INPUT : pointcloud points Shape(n,4), T_cam_2_lidar Shape(4,4)
+    OUTPUT : pointcloud points in lidar frame Shape(n,4), 
+    '''
+    points_transformed = (T_cam_2_lidar @ points.T).T
+    return points_transformed[:,:3]   
+
+
 
     
 if __name__ == "__main__":
