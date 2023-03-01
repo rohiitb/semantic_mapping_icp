@@ -71,11 +71,12 @@ def cam_2_lidar(points, T_cam_2_lidar):
     INPUT : pointcloud points Shape(n,4), T_cam_2_lidar Shape(4,4)
     OUTPUT : pointcloud points in lidar frame Shape(n,4), 
     '''
+    points = make_pts_homogenous(points)
     points_transformed = (T_cam_2_lidar @ points.T).T
     return points_transformed[:,:3]   
 
-
-
+def normalize_pixels(pixels, min_val, max_val):
+    return (((pixels - min_val)/float(max_val - min_val))*255).astype(np.uint8)
     
 if __name__ == "__main__":
     pass

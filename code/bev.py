@@ -60,15 +60,69 @@ class BEV():
 
     def load_pcds(self):
         pcds = []
-        pcd_data = os.listdir(self.painted_pcd_rgb)
+        pcd_data = os.listdir(self.segmented_pcd)
         pcd_data.sort()
         for idx in range(len(pcd_data)):
-            pcd = o3d.io.read_point_cloud(f"{self.painted_pcd_rgb}/{pcd_data[idx]}")
-            pcd_down = pcd.voxel_down_sample(voxel_size=self.voxel_size)
-            pcds.append(pcd_down)
+            pcd = o3d.io.read_point_cloud(f"{self.segmented_pcd}/{pcd_data[idx]}")
+            pcds.append(pcd)
         return pcds
+    
+    def get_single_seg_data(self, idx):
+        pcd_data = os.listdir(self.segmented_pcd)
+        pcd_data.sort()
+        pcd_load = o3d.io.read_point_cloud(f"{self.segmented_pcd}/{pcd_data[idx]}")
+        points = np.asarray(pcd_load.points)
+        return points
+    
+    def get_bev(self, points, side_range=(-50,50), fwd_rng=(0,30), res=0.2, height_rng=(-10,10.5)):
+        points = cam_2_lidar(points, self.calib.T_cam_2_lidar)
+
+        x_points = points[:,0]
+        y_points = points[:,1]
+        z_points = points[:,2]
+
+
+        f_filter = np.logical_and((x_points > fwd_rng[0]), x_points < fwd_rng[1])
+        s_filter = np.logical_and((y_points > -side_range[1]), (y_points < -side_range[0]))
+        filt = np.logical_and(f_filter, s_filter)
+        idx = np.argwhere(filt).flatten()
+
+        x_points = x_points[idx]
+        y_points = y_points[idx]
+        z_points = z_points[idx]
+
+        x_img = (-y_points/res).astype(np.int32)
+        y_img = (-x_points/res).astype(np.int32)
+
+        x_img -= int(np.floor(side_range[0]/res))
+        y_img += int(np.ceil(fwd_rng[1]/res))
+
+        pixel_vals = np.clip(z_points, height_rng[0], height_rng[1])
+        # print("here : ", pixel_vals)
+        # raise
+        pixel_vals = normalize_pixels(pixel_vals, height_rng[0], height_rng[1])
+
+        # INITIALIZE EMPTY ARRAY - of the dimensions we want
+        x_max = 1+int((side_range[1] - side_range[0])/res)
+        y_max = 1+int((fwd_rng[1] - fwd_rng[0])/res)
+        im = np.zeros([y_max, x_max], dtype=np.uint8)
+
+        # FILL PIXEL VALUES IN IMAGE ARRAY
+        im[y_img, x_img] = pixel_vals 
+
+        plt.imshow(im)#, cmap="spectral", vmin=0, vmax=255)
+        plt.show()
+
+
+
+
+
     
 if __name__ == "__main__":
     proj = BEV()
-    proj.visualize_segmented_pcd(625)
+    # proj.visualize_segmented_pcd(625)
+    points_lid = proj.get_single_seg_data(620)
+    print(points_lid.shape)
+    proj.get_bev(points_lid)
+
    
