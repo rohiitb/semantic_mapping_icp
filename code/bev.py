@@ -74,9 +74,13 @@ class BEV():
         points = np.asarray(pcd_load.points)
         return points
     
-    def get_bev(self, points, side_range=(-50,50), fwd_rng=(0,30), res=0.2, height_rng=(-10,10.5)):
-        points = cam_2_lidar(points, self.calib.T_cam_2_lidar)
+    def get_whole_bev(self, points, side_range=(-50,50), fwd_rng=(-50,50), res=0.05, height_rng=(-10,10.5)):
+        '''
+        Input: points in LiDAR frame (n,3), side_range (clipping the side values), fwd_rng (clipping the forward values), 
+                res (resolution ...keep more for coarse pointcloud and less for fine), height_rng (clipping values in Z direction)
+        Output: Bird's eye view image
 
+        '''
         x_points = points[:,0]
         y_points = points[:,1]
         z_points = points[:,2]
@@ -110,7 +114,53 @@ class BEV():
         # FILL PIXEL VALUES IN IMAGE ARRAY
         im[y_img, x_img] = pixel_vals 
 
-        plt.imshow(im)#, cmap="spectral", vmin=0, vmax=255)
+        plt.imshow(im, cmap="gray")
+        plt.show()
+
+    def get_seg_bev(self, points, side_range=(-50,50), fwd_rng=(-25,25), res=0.05, height_rng=(-2,0.5)):
+        '''
+        Input: points in LiDAR frame (n,3), side_range (clipping the side values), fwd_rng (clipping the forward values), 
+                res (resolution ...keep more for coarse pointcloud and less for fine), height_rng (clipping values in Z direction)
+        Output: Bird's eye view image
+
+        '''
+        x_points = points[:,0]
+        y_points = points[:,1]
+        z_points = points[:,2]
+
+
+        f_filter = np.logical_and((x_points > fwd_rng[0]), x_points < fwd_rng[1])
+        s_filter = np.logical_and((y_points > -side_range[1]), (y_points < -side_range[0]))
+        filt = np.logical_and(f_filter, s_filter)
+        idx = np.argwhere(filt).flatten()
+
+        x_points = x_points[idx]
+        y_points = y_points[idx]
+        z_points = z_points[idx]
+
+        x_img = (-y_points/res).astype(np.int32)
+        y_img = (-x_points/res).astype(np.int32)
+
+        x_img -= int(np.floor(side_range[0]/res))
+        y_img += int(np.ceil(fwd_rng[1]/res))
+
+        pixel_vals = np.clip(z_points, height_rng[0], height_rng[1])
+        # print("here : ", pixel_vals)
+        # raise
+        pixel_vals = normalize_pixels(pixel_vals, height_rng[0], height_rng[1])
+
+        # INITIALIZE EMPTY ARRAY - of the dimensions we want
+        x_max = 1+int((side_range[1] - side_range[0])/res)
+        y_max = 1+int((fwd_rng[1] - fwd_rng[0])/res)
+        im = np.zeros([y_max, x_max], dtype=np.uint8)
+        im = np.zeros((3, y_max, x_max)).astype(np.uint8)
+
+        # FILL PIXEL VALUES IN IMAGE ARRAY
+        im[y_img, x_img] = pixel_vals 
+        print("Image : ", im.max(), im.min())
+        raise
+
+        plt.imshow(im, cmap="gray")
         plt.show()
 
 
@@ -121,8 +171,8 @@ class BEV():
 if __name__ == "__main__":
     proj = BEV()
     # proj.visualize_segmented_pcd(625)
-    points_lid = proj.get_single_seg_data(620)
+    points_lid, _ = proj.get_single_data(0)
     print(points_lid.shape)
-    proj.get_bev(points_lid)
+    proj.get_whole_bev(points_lid)
 
    
