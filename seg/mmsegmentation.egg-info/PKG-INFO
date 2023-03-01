@@ -11,13 +11,6 @@ Description: [![NVIDIA Source Code License](https://img.shields.io/badge/license
         
         # SegFormer: Simple and Efficient Design for Semantic Segmentation with Transformers
         
-        <!-- ![image](resources/image.png) -->
-        <div align="center">
-          <img src="./resources/image.png" height="400">
-        </div>
-        <p align="center">
-          Figure 1: Performance of SegFormer-B0 to SegFormer-B5.
-        </p>
         
         ### [Project page](https://github.com/NVlabs/SegFormer) | [Paper](https://arxiv.org/abs/2105.15203) | [Demo (Youtube)](https://www.youtube.com/watch?v=J0MoRQzZe8U) | [Demo (Bilibili)](https://www.bilibili.com/video/BV1MV41147Ko/)
         
@@ -105,14 +98,6 @@ Description: [![NVIDIA Source Code License](https://img.shields.io/badge/license
         python demo/image_demo.py demo/demo.png local_configs/segformer/B1/segformer.b1.512x512.ade.160k.py \
         /path/to/checkpoint_file --device cuda:0 --palette cityscapes
         ```
-        
-        
-        
-        
-        
-        ## License
-        Please check the LICENSE file. SegFormer may be used non-commercially, meaning for research or 
-        evaluation purposes only. For business inquiries, please visit our website and submit the form: [NVIDIA Research Licensing](https://www.nvidia.com/en-us/research/inquiries/).
         
         
         ## Citation

@@ -22,7 +22,7 @@ def main():
     # test a single image
     result = inference_segmentor(model, args.img)
     # show the results
-    show_result_pyplot(model, args.img, result, get_palette(args.palette), bool_write=True, out_path='trial_2.png')
+    show_result_pyplot(model, args.img, result, get_palette(args.palette), bool_write=True, out_path='/home/rohiitb/semantic_mapping_icp/seg/checkpoints/trial_2.png')
 
 
 if __name__ == '__main__':
