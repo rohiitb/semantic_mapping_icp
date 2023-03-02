@@ -6,14 +6,18 @@ This is naive implementation of PointPainting where any image segmentation netwo
 ## Results
 
 ### Semantically Segmented Pointcloud
-
+<img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
 
 
 ### Bird's eye view
-
+<img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
 ### Semantic segmentation results
-
+<img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
 ### Installation
+
+
+
+## File structure
 
     ├── seg SegFormer Folders
     ├── dataset    <--KITTI360
@@ -27,7 +31,5 @@ This is naive implementation of PointPainting where any image segmentation netwo
     |  ├── icp_trial_pose_graph_registration.py
     |  ├── segment_pcd.py
     |  ├── bev.py
-
-## File structure
 
 
