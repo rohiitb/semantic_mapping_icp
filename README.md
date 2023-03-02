@@ -15,6 +15,19 @@ This is naive implementation of PointPainting where any image segmentation netwo
 
 ### Installation
 
+    ├── seg SegFormer Folders
+    ├── dataset    <--KITTI360
+    |  ├── rgb
+    |  ├── fused_pcd
+    ├── code
+    |  ├── utils.py 
+    |  ├── calib.py
+    |  ├── icp_trial_color_registration.py
+    |  ├── icp_trial_global_registration.py
+    |  ├── icp_trial_pose_graph_registration.py
+    |  ├── segment_pcd.py
+    |  ├── bev.py
+
 ## File structure
 
 
