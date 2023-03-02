@@ -14,8 +14,10 @@ class BEV():
         self.calib_path = f"{self.dir_path}/dataset/calibration"
         self.img_dataset_path = f"{self.dir_path}/dataset/camera/images"
         self.pcd_dataset_path = f"{self.dir_path}/dataset/lidar/pcd_points"
-        # self.painted_pcd_rgb = f"{self.dir_path}/dataset/painted_points_rgb"
+        self.painted_pcd_rgb = f"{self.dir_path}/dataset/painted_points_rgb"
         self.segmented_pcd = f"{self.dir_path}/dataset/segmented_pcd"
+        self.bev_segmented = f"{self.dir_path}/dataset/segmented_bev"
+        self.bev_whole = f"{self.dir_path}/dataset/whole_bev"
 
         self.segmented_img_dataset_path = f"{self.dir_path}/dataset/segmented_imgs"
         self.calib = Calibration(self.calib_path)
@@ -23,7 +25,7 @@ class BEV():
         self.voxel_size = 0.05
         
         all_pcds = self.load_pcds()
-        self.pcds_down = all_pcds
+        self.all_pcds = all_pcds
 
     def get_single_data(self, idx):
         pcd_data = os.listdir(self.pcd_dataset_path)
@@ -74,13 +76,15 @@ class BEV():
         points = np.asarray(pcd_load.points)
         return points
     
-    def get_whole_bev(self, points, side_range=(-50,50), fwd_rng=(-50,50), res=0.05, height_rng=(-10,10.5)):
+    def get_whole_bev(self, pcd, side_range=(-40,40), fwd_rng=(-40,40), res=0.05, height_rng=(-10,10.5), visualize=False):
         '''
         Input: points in LiDAR frame (n,3), side_range (clipping the side values), fwd_rng (clipping the forward values), 
                 res (resolution ...keep more for coarse pointcloud and less for fine), height_rng (clipping values in Z direction)
         Output: Bird's eye view image
 
         '''
+
+        points = np.asarray(pcd.points)
         x_points = points[:,0]
         y_points = points[:,1]
         z_points = points[:,2]
@@ -102,8 +106,6 @@ class BEV():
         y_img += int(np.ceil(fwd_rng[1]/res))
 
         pixel_vals = np.clip(z_points, height_rng[0], height_rng[1])
-        # print("here : ", pixel_vals)
-        # raise
         pixel_vals = normalize_pixels(pixel_vals, height_rng[0], height_rng[1])
 
         # INITIALIZE EMPTY ARRAY - of the dimensions we want
@@ -114,16 +116,21 @@ class BEV():
         # FILL PIXEL VALUES IN IMAGE ARRAY
         im[y_img, x_img] = pixel_vals 
 
-        plt.imshow(im, cmap="gray")
-        plt.show()
+        if visualize:
+            plt.imshow(im, cmap="gray")
+            plt.show()
 
-    def get_seg_bev(self, points, side_range=(-50,50), fwd_rng=(-25,25), res=0.05, height_rng=(-2,0.5)):
+        return im
+
+    def get_seg_bev(self, pcd, side_range=(-50,50), fwd_rng=(0,45), res=0.05, height_rng=(-2,0.5), visualize=False):
         '''
         Input: points in LiDAR frame (n,3), side_range (clipping the side values), fwd_rng (clipping the forward values), 
                 res (resolution ...keep more for coarse pointcloud and less for fine), height_rng (clipping values in Z direction)
         Output: Bird's eye view image
-
+        
         '''
+        points = np.asarray(pcd.points)
+        rgbs = np.asarray(pcd.colors)*255.
         x_points = points[:,0]
         y_points = points[:,1]
         z_points = points[:,2]
@@ -137,6 +144,7 @@ class BEV():
         x_points = x_points[idx]
         y_points = y_points[idx]
         z_points = z_points[idx]
+        rgbs = rgbs[idx]
 
         x_img = (-y_points/res).astype(np.int32)
         y_img = (-x_points/res).astype(np.int32)
@@ -144,9 +152,8 @@ class BEV():
         x_img -= int(np.floor(side_range[0]/res))
         y_img += int(np.ceil(fwd_rng[1]/res))
 
+        # Pixel values based on height
         pixel_vals = np.clip(z_points, height_rng[0], height_rng[1])
-        # print("here : ", pixel_vals)
-        # raise
         pixel_vals = normalize_pixels(pixel_vals, height_rng[0], height_rng[1])
 
         # INITIALIZE EMPTY ARRAY - of the dimensions we want
@@ -156,23 +163,28 @@ class BEV():
         im = np.zeros((3, y_max, x_max)).astype(np.uint8)
 
         # FILL PIXEL VALUES IN IMAGE ARRAY
-        im[y_img, x_img] = pixel_vals 
-        print("Image : ", im.max(), im.min())
-        raise
+        im[:, y_img, x_img] = rgbs.T
+        im = im.transpose(1,2,0)
 
-        plt.imshow(im, cmap="gray")
-        plt.show()
+        if visualize:    
+            plt.imshow(im)
+            plt.show()
+
+        return im
+
+    def store_whole_bev(self):
+        pcd_data = os.listdir(self.pcd_dataset_path)
+        pcd_data.sort()
+        for i in range(len(self.all_pcds)):
+            pcd_load = o3d.io.read_point_cloud(f"{self.pcd_dataset_path}/{pcd_data[i]}")
+            img = self.get_whole_bev(pcd_load)
+            cv2.imwrite(f"{self.bev_whole}/{i}.png", img)
 
 
-
-
-
-    
 if __name__ == "__main__":
     proj = BEV()
-    # proj.visualize_segmented_pcd(625)
-    points_lid, _ = proj.get_single_data(0)
-    print(points_lid.shape)
-    proj.get_whole_bev(points_lid)
+
+
+
 
    
