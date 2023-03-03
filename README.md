@@ -51,7 +51,7 @@ Works for any dataset (edit calibration file)
     |  ├── calib.py
     |  ├── icp_trial_color_registration.py
     |  ├── icp_trial_global_registration.py
-    |  ├── icp_trial_pose_graph_registration.py
+    |  ├── icp_trial_pose_graph_refinement.py
     |  ├── segment_pcd.py
     |  ├── bev.py
 
