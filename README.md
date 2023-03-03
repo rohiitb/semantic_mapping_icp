@@ -11,8 +11,11 @@ This is naive implementation of PointPainting where any image segmentation netwo
 
 ### Bird's eye view
 <img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
+
 ### Semantic segmentation results
 <img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
+
+
 ### Installation
 
 
