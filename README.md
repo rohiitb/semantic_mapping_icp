@@ -16,7 +16,7 @@ This is naive implementation of PointPainting where any image segmentation netwo
 <img src="./results/seg_img_gif.gif"  align="center" width="400" height="300"/>
 
 
-### Installation
+## Installation
 
 
 
