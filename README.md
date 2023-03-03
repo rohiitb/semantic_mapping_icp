@@ -18,6 +18,18 @@ This is naive implementation of PointPainting where any image segmentation netwo
 
 ## Installation
 
+```
+pip install torchvision==0.8.2
+pip install timm==0.3.2
+pip install mmcv-full==1.2.7
+pip install opencv-python==4.5.1.48
+cd seg && pip install -e . --user
+```
+
+For more details for installtion visit [SegFormer](https://github.com/NVlabs/SegFormer)
+
+Works for any dataset (edit calibration file)
+
 
 
 ## File structure
