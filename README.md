@@ -5,7 +5,7 @@ This is naive implementation of PointPainting where any image segmentation netwo
 
 ## Results
 
-To watch full video, click here [Link]().
+To watch full video, click here [Link](https://youtu.be/2mXXd_wS-Yo).
 
 ### Semantically Segmented Pointcloud
 <img src="./results/pcd_gif.gif"  align="center" width="400" height="300"/>
