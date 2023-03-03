@@ -6,7 +6,7 @@ This is naive implementation of PointPainting where any image segmentation netwo
 ## Results
 
 ### Semantically Segmented Pointcloud
-<img src="/github_fig/projected.png"  align="center" alt="Undistorted" width="400"/>
+<img src="./results/pcd_gif.gif"  align="center"/>
 
 
 ### Bird's eye view
