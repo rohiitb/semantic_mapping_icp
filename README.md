@@ -21,8 +21,14 @@ This is naive implementation of PointPainting where any image segmentation netwo
 
     ├── seg SegFormer Folders
     ├── dataset    <--KITTI360
-    |  ├── rgb
-    |  ├── fused_pcd
+    |  ├── camera
+    |  ├── calibration
+    |  ├── lidar
+    |  ├── painted_points_rgb
+    |  ├── segmented_bev
+    |  ├── segmented_imgs
+    |  ├── segmented_pcd
+    |  ├── whole_bev
     ├── code
     |  ├── utils.py 
     |  ├── calib.py
